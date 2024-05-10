@@ -1,5 +1,6 @@
 require 'erb'
 require 'pry'
+require_relative 'helpers/image_helper.rb'
 
 class App
   def call(env)
@@ -9,7 +10,7 @@ class App
     if path == '/'
       render('home')
     elsif path.include?('/images')
-      serve_image(path)
+      ImageHelper.serve_image(path)
     else
       handle_missing_path
     end
@@ -36,16 +37,5 @@ class App
     headers = { 'Content-Type' => 'text/html; charset=utf-8' }
 
     [404, headers, [body]]
-  end
-
-  def serve_image(img_path)
-    image_path = "app/public#{img_path}"
-
-    if File.exist?(image_path)
-      image = File.read(image_path)
-      [200, { 'Content-Type' => 'image/jpeg' }, [image]]
-    else
-      [404, { 'Content-Type' => 'text/plain' }, ['Image not found']]
-    end
   end
 end
