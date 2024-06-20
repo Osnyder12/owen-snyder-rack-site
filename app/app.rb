@@ -5,14 +5,15 @@ require_relative 'helpers/image_helper.rb'
 class App
   def call(env)
     req = Rack::Request.new(env)
-    path = req.path_info
+    req_path = req.path_info
+    path = req_path.delete('/').gsub('-', '_')
 
-    if path == '/'
+    if path.empty?
       render('home')
-    elsif path.include?('/images')
-      ImageHelper.serve_image(path)
+    elsif path.include?('images')
+      ImageHelper.serve_image(req_path)
     else
-      handle_missing_path
+      render(path)
     end
   end
 
@@ -28,6 +29,9 @@ class App
 
   def render_template(template)
     template = File.read("./app/views/#{template}.html.erb")
+
+    handle_missing_path unless template
+
     erb = ERB.new(template)
     erb.result(binding)
   end
